@@ -1,6 +1,6 @@
 package db
 
-type DatabaseConfig struct {
+type Config struct {
 	Host     string `json:"host" env:"DB_HOST"`
 	User     string `json:"user" env:"DB_USER"`
 	Password string `json:"password" env:"DB_PASSWORD"`

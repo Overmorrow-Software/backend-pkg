@@ -12,7 +12,7 @@ import (
 	"github.com/uptrace/bun/driver/pgdriver"
 )
 
-func New(ctx context.Context, cfg *DatabaseConfig) (*bun.DB, error) {
+func New(ctx context.Context, cfg *Config) (*bun.DB, error) {
 	dsn := fmt.Sprintf(
 		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DBName, cfg.SSLMode,
