@@ -12,6 +12,7 @@ var OperatorsMap = map[string]struct{}{
 	"ilike":  {},
 	"is":     {},
 	"is not": {},
+	"in":     {},
 }
 
 type Options struct {
@@ -44,20 +45,22 @@ func (o Order) IsValid() bool {
 }
 
 type Filter struct {
-	Column   string `json:"column" query:"column"`
-	Operator string `json:"operator" query:"operator"`
-	Value    string `json:"value" query:"value"`
-	WhereOr  bool   `json:"where_or" query:"where_or"`
+	Column   string   `json:"column" query:"column"`
+	Operator string   `json:"operator" query:"operator"`
+	Value    string   `json:"value" query:"value"`
+	Values   []string `json:"values" query:"values"`
+	WhereOr  bool     `json:"where_or" query:"where_or"`
 }
 
 func (f Filter) isValid() bool {
-	if f.Column == "" || f.Operator == "" || f.Value == "" {
+	if f.Column == "" || f.Operator == "" {
 		return false
 	}
-
 	if _, ok := OperatorsMap[f.Operator]; !ok {
 		return false
 	}
-
-	return true
+	if f.Operator == "in" {
+		return len(f.Values) > 0
+	}
+	return f.Value != ""
 }

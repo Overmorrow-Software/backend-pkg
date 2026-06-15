@@ -1,8 +1,12 @@
 package repository
 
-import "github.com/uptrace/bun"
+import (
+	"context"
+	"database/sql"
 
-// DBConn is implemented by both *bun.DB and bun.Tx
+	"github.com/uptrace/bun"
+)
+
 type DBConn interface {
 	bun.IDB
 	bun.IConn
@@ -11,23 +15,16 @@ type DBConn interface {
 var _ DBConn = (*bun.DB)(nil)
 var _ DBConn = bun.Tx{}
 
-// DBWrapper implements DB interface and is used to
-// create a new instance of itself, but with
-// bun.Tx inside DBConn, so query executes inside a transaction
 type DBWrapper struct {
 	DBConn
 }
 
 func NewDBWrapper(db *bun.DB) DBWrapper {
-	return DBWrapper{
-		DBConn: db,
-	}
+	return DBWrapper{DBConn: db}
 }
 
 func (w DBWrapper) WithTx(tx bun.Tx) DB {
-	return &DBWrapper{
-		DBConn: tx,
-	}
+	return &DBWrapper{DBConn: tx}
 }
 
 type DB interface {
@@ -36,3 +33,15 @@ type DB interface {
 }
 
 var _ DB = DBWrapper{}
+
+func RunInTx(ctx context.Context, db *bun.DB, fn func(tx bun.Tx) error) error {
+	tx, err := db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
+	if err := fn(tx); err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+	return tx.Commit()
+}

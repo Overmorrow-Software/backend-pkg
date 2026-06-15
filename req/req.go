@@ -14,24 +14,45 @@ import (
 	"github.com/google/uuid"
 )
 
-var validate = validator.New()
+type Validator struct {
+	v *validator.Validate
+}
 
-func init() {
-	validate.RegisterTagNameFunc(func(f reflect.StructField) string {
+type ValidatorOption func(*validator.Validate)
+
+func WithValidation(tag string, fn validator.Func) ValidatorOption {
+	return func(v *validator.Validate) {
+		_ = v.RegisterValidation(tag, fn)
+	}
+}
+
+func NewValidator(opts ...ValidatorOption) *Validator {
+	v := validator.New()
+	v.RegisterTagNameFunc(func(f reflect.StructField) string {
 		name, _, _ := strings.Cut(f.Tag.Get("json"), ",")
 		if name == "" || name == "-" {
 			return f.Name
 		}
 		return name
 	})
+	for _, opt := range opts {
+		opt(v)
+	}
+	return &Validator{v: v}
 }
 
+var std = NewValidator()
+
 func Parse[T any](c fiber.Ctx) (T, error) {
+	return ParseWith[T](c, std)
+}
+
+func ParseWith[T any](c fiber.Ctx, v *Validator) (T, error) {
 	var r T
 	if err := c.Bind().Body(&r); err != nil {
 		return r, apierror.BadRequest("invalid body")
 	}
-	if err := validate.Struct(&r); err != nil {
+	if err := v.v.Struct(&r); err != nil {
 		errs, _ := err.(validator.ValidationErrors)
 		return r, apierror.Validation(toFieldErrors(errs))
 	}

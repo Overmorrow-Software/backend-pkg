@@ -22,16 +22,10 @@ func (t configType) isJSON() bool { return strings.ToLower(t.CType) == "json" }
 func (t configType) isEnv() bool  { return strings.ToLower(t.CType) == "env" }
 
 func New[T any](path string) (*T, error) {
-	var (
-		t   configType
-		err error
-	)
+	_ = godotenv.Load()
 
-	if err = godotenv.Load(); err != nil {
-		return nil, err
-	}
-
-	if t, err = env.ParseAs[configType](); err != nil {
+	t, err := env.ParseAs[configType]()
+	if err != nil {
 		return nil, err
 	}
 
