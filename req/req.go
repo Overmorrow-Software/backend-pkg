@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"backend-pkg/apierror"
-	"backend-pkg/repository"
+	"github.com/Overmorrow-Software/backend-pkg/apierror"
+	"github.com/Overmorrow-Software/backend-pkg/repository"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v3"

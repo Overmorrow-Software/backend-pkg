@@ -1,8 +1,9 @@
 package apierror
 
 import (
-	"backend-pkg/apierror"
 	"errors"
+
+	"github.com/Overmorrow-Software/backend-pkg/apierror"
 
 	"github.com/gofiber/fiber/v3"
 )
