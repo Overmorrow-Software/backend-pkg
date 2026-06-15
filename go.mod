@@ -1,4 +1,4 @@
-module backend-pkg
+module github.com/Overmorrow-Software/backend-pkg
 
 go 1.25.7
 
