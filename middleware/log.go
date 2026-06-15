@@ -9,8 +9,10 @@ import (
 
 func Log(logger *zap.Logger) fiber.Handler {
 	return func(c fiber.Ctx) error {
-		start := time.Now()
-		err := c.Next()
+		var (
+			start = time.Now()
+			err   = c.Next()
+		)
 
 		status := c.Response().StatusCode()
 		fields := []zap.Field{
