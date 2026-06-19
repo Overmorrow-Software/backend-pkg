@@ -1,7 +1,6 @@
 package apierror
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/goccy/go-json"
@@ -11,6 +10,7 @@ type Error struct {
 	Code    string       `json:"code"`
 	Message string       `json:"message"`
 	Status  int          `json:"status"`
+	ReqID   string       `json:"req_id,omitempty"`
 	Fields  []FieldError `json:"fields,omitempty"`
 }
 
@@ -22,8 +22,9 @@ type FieldError struct {
 func newError(status int, message, reqID string) *Error {
 	return &Error{
 		Code:    defaultCode(status),
-		Message: fmt.Sprintf("%s reqID:%s", message, reqID),
+		Message: message,
 		Status:  status,
+		ReqID:   reqID,
 	}
 }
 

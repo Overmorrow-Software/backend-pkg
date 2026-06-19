@@ -1,17 +1,15 @@
 package apierror
 
-import (
-	"fmt"
-	"net/http"
-)
+import "net/http"
 
 const StatusLoginTimeout = 440
 
 func Validation(reqID string, fields []FieldError) *Error {
 	return &Error{
 		Code:    "VALIDATION_ERROR",
-		Message: fmt.Sprintf("validation failed reqID:%s", reqID),
+		Message: "validation failed",
 		Status:  http.StatusBadRequest,
+		ReqID:   reqID,
 		Fields:  fields,
 	}
 }
