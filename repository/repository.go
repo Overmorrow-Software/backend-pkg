@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Overmorrow-Software/backend-pkg/apierror"
+	"github.com/Overmorrow-Software/backend-pkg/middleware"
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
@@ -55,7 +56,7 @@ func (r Generic[M, IDType]) GetByID(ctx context.Context, id IDType) (*M, error) 
 	model := new(M)
 	err := r.DB.NewSelect().Model(model).Where("id = ?", id).Scan(ctx)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, apierror.NotFound("not found")
+		return nil, apierror.NotFound("not found", middleware.GetRequestIDCtx(ctx))
 	}
 	if err != nil {
 		return nil, err

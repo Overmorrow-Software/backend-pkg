@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Overmorrow-Software/backend-pkg/apierror"
+	"github.com/Overmorrow-Software/backend-pkg/middleware"
 	"github.com/Overmorrow-Software/backend-pkg/repository"
 
 	"github.com/go-playground/validator/v10"
@@ -50,11 +51,11 @@ func Parse[T any](c fiber.Ctx) (T, error) {
 func ParseWith[T any](c fiber.Ctx, v *Validator) (T, error) {
 	var r T
 	if err := c.Bind().Body(&r); err != nil {
-		return r, apierror.BadRequest("invalid body")
+		return r, apierror.BadRequest("invalid body", middleware.GetRequestID(c))
 	}
 	if err := v.v.Struct(&r); err != nil {
 		errs, _ := err.(validator.ValidationErrors)
-		return r, apierror.Validation(toFieldErrors(errs))
+		return r, apierror.Validation(middleware.GetRequestID(c), toFieldErrors(errs))
 	}
 	return r, nil
 }
@@ -104,7 +105,7 @@ func fieldMessage(fe validator.FieldError) string {
 func ParseID(c fiber.Ctx, param string) (uint64, error) {
 	id, err := strconv.ParseUint(c.Params(param), 10, 64)
 	if err != nil || id == 0 {
-		return 0, apierror.BadRequest("invalid " + param)
+		return 0, apierror.BadRequest("invalid "+param, middleware.GetRequestID(c))
 	}
 	return id, nil
 }
@@ -112,7 +113,7 @@ func ParseID(c fiber.Ctx, param string) (uint64, error) {
 func ParseUUID(c fiber.Ctx, param string) (uuid.UUID, error) {
 	id, err := uuid.Parse(c.Params(param))
 	if err != nil {
-		return uuid.Nil, apierror.BadRequest("invalid " + param)
+		return uuid.Nil, apierror.BadRequest("invalid "+param, middleware.GetRequestID(c))
 	}
 	return id, nil
 }
@@ -124,7 +125,7 @@ func ParseOptionalIDQuery(c fiber.Ctx, key string) (*uint64, error) {
 	}
 	id, err := strconv.ParseUint(raw, 10, 64)
 	if err != nil || id == 0 {
-		return nil, apierror.BadRequest("invalid " + key)
+		return nil, apierror.BadRequest("invalid "+key, middleware.GetRequestID(c))
 	}
 	return &id, nil
 }
@@ -132,11 +133,11 @@ func ParseOptionalIDQuery(c fiber.Ctx, key string) (*uint64, error) {
 func ParseTimeQuery(c fiber.Ctx, key string) (time.Time, error) {
 	raw := c.Query(key)
 	if raw == "" {
-		return time.Time{}, apierror.BadRequest("missing query param: " + key)
+		return time.Time{}, apierror.BadRequest("missing query param: "+key, middleware.GetRequestID(c))
 	}
 	t, err := time.Parse(time.RFC3339, raw)
 	if err != nil {
-		return time.Time{}, apierror.BadRequest("invalid time format for " + key + ", expected RFC3339")
+		return time.Time{}, apierror.BadRequest("invalid time format for "+key+", expected RFC3339", middleware.GetRequestID(c))
 	}
 	return t, nil
 }
@@ -151,7 +152,7 @@ type queryOptions struct {
 func ParseOptions(c fiber.Ctx) (*repository.Options, error) {
 	var q queryOptions
 	if err := c.Bind().Query(&q); err != nil {
-		return nil, apierror.BadRequest("invalid query params")
+		return nil, apierror.BadRequest("invalid query params", middleware.GetRequestID(c))
 	}
 	return &repository.Options{
 		Pagination: repository.Pagination{

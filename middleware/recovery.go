@@ -11,7 +11,7 @@ func Recovery(logger *zap.Logger) fiber.Handler {
 		defer func() {
 			if r := recover(); r != nil {
 				logger.Error("panic", zap.Any("recover", r), zap.Stack("stack"))
-				err = apierror.Internal("internal server error")
+				err = apierror.Internal("internal server error", GetRequestID(c))
 			}
 		}()
 		return c.Next()

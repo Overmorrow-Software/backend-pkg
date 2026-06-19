@@ -1,25 +1,28 @@
 package apierror
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 const StatusLoginTimeout = 440
 
-func Validation(fields []FieldError) *Error {
+func Validation(reqID string, fields []FieldError) *Error {
 	return &Error{
 		Code:    "VALIDATION_ERROR",
-		Message: "validation failed",
+		Message: fmt.Sprintf("validation failed reqID:%s", reqID),
 		Status:  http.StatusBadRequest,
 		Fields:  fields,
 	}
 }
 
-func BadRequest(message string) *Error      { return newError(http.StatusBadRequest, message) }
-func Unauthorized(message string) *Error    { return newError(http.StatusUnauthorized, message) }
-func PaymentRequired(message string) *Error { return newError(http.StatusPaymentRequired, message) }
-func Forbidden(message string) *Error       { return newError(http.StatusForbidden, message) }
-func NotFound(message string) *Error        { return newError(http.StatusNotFound, message) }
-func Gone(message string) *Error            { return newError(http.StatusGone, message) }
-func AlreadyExist(message string) *Error    { return newError(http.StatusConflict, message) }
-func TooManyRequests(message string) *Error { return newError(http.StatusTooManyRequests, message) }
-func LoginTimeout(message string) *Error    { return newError(StatusLoginTimeout, message) }
-func Internal(message string) *Error        { return newError(http.StatusInternalServerError, message) }
+func BadRequest(message, reqID string) *Error      { return newError(http.StatusBadRequest, message, reqID) }
+func Unauthorized(message, reqID string) *Error    { return newError(http.StatusUnauthorized, message, reqID) }
+func PaymentRequired(message, reqID string) *Error { return newError(http.StatusPaymentRequired, message, reqID) }
+func Forbidden(message, reqID string) *Error       { return newError(http.StatusForbidden, message, reqID) }
+func NotFound(message, reqID string) *Error        { return newError(http.StatusNotFound, message, reqID) }
+func Gone(message, reqID string) *Error            { return newError(http.StatusGone, message, reqID) }
+func AlreadyExist(message, reqID string) *Error    { return newError(http.StatusConflict, message, reqID) }
+func TooManyRequests(message, reqID string) *Error { return newError(http.StatusTooManyRequests, message, reqID) }
+func LoginTimeout(message, reqID string) *Error    { return newError(StatusLoginTimeout, message, reqID) }
+func Internal(message, reqID string) *Error        { return newError(http.StatusInternalServerError, message, reqID) }

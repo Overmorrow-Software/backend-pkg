@@ -1,6 +1,7 @@
 package apierror
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/goccy/go-json"
@@ -18,10 +19,10 @@ type FieldError struct {
 	Message string `json:"message"`
 }
 
-func newError(status int, message string) *Error {
+func newError(status int, message, reqID string) *Error {
 	return &Error{
 		Code:    defaultCode(status),
-		Message: message,
+		Message: fmt.Sprintf("%s reqID:%s", message, reqID),
 		Status:  status,
 	}
 }
